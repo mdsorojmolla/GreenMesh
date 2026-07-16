@@ -143,31 +143,31 @@ export default function HomePage() {
           <div className={styles.heroContent}>
             <div className={styles.heroBadge}>
               <span className="pulse-dot" />
-              <span>৳95/hr সর্বনিম্ন · বাংলাদেশি শিক্ষার্থীদের জন্য AI কম্পিউট</span>
+              <span>Starts at ৳22/hr · AI Compute Built for Bangladeshi Researchers & Students</span>
             </div>
             <h1>
-              বাংলাদেশের প্রথম{' '}
+              The First{' '}
               <span className="gradient-text">AI GPU</span>{' '}
-              মার্কেটপ্লেস
+              Marketplace in Bangladesh
             </h1>
             <p className={styles.heroSubtitle}>
-              BUET, DU, NSU ও BRAC-এর শিক্ষার্থীরা এখন ক্লাউডের চেয়ে ৭০% কম খরচে
-              GPU ভাড়া নিতে পারবেন। AI স্কেজুলার, অটো-মাইগ্রেশন ও কার্বন-অপ্টিমাইজড রাউটিং সহ।
+              Empowering students and researchers from BUET, DU, NSU, and BRAC to rent high-performance GPUs
+              at up to 70% lower cost than traditional cloud providers — backed by AI scheduling, auto-migration, and green energy routing.
             </p>
             <div className={styles.heroActions}>
               <Link href="/marketplace" className="btn btn-primary btn-lg">
-                🚀 GPU দেখুন
+                🚀 Browse GPUs
               </Link>
               <Link href="/onboard/provider" className="btn btn-secondary btn-lg">
-                💰 Provider হন
+                💰 Become a Provider
               </Link>
             </div>
             <div className={styles.heroStats}>
               {[
-                { label: 'GPU অনলাইন',      value: <AnimatedCounter target={847} />, color: '#00ff88' },
-                { label: 'সর্বনিম্ন/ঘন্টা', value: <><span>৳</span><AnimatedCounter target={22} /></>, color: '#00d4ff' },
-                { label: 'CO₂ বাঁচানো হয়েছে', value: <><AnimatedCounter target={184} />kg</>, color: '#4ade80' },
-                { label: 'আপটাইম SLA',      value: '99.9%', color: '#a78bfa' },
+                { label: 'GPUs Online',     value: <AnimatedCounter target={847} />, color: '#00ff88' },
+                { label: 'Min Rate / Hour', value: <><span>৳</span><AnimatedCounter target={22} /></>, color: '#00d4ff' },
+                { label: 'CO₂ Saved Today', value: <><AnimatedCounter target={184} />kg</>, color: '#4ade80' },
+                { label: 'Uptime SLA',      value: '99.9%', color: '#a78bfa' },
               ].map((s, i) => (
                 <div key={i} className={styles.heroStat}>
                   <span className={styles.heroStatValue} style={{ color: s.color }}>{s.value}</span>
@@ -192,11 +192,11 @@ export default function HomePage() {
         <div className={styles.tickerTrack}>
           {[...Array(3)].flatMap(() => [
             '⚡ job-a41f: BUET CS Lab → RTX 4090 (Oslo) scheduled · ৳682/hr',
-            '🌿 কার্বন সাশ্রয়: আজ ১৮৪.২ kg CO₂ বাঁচানো হয়েছে',
-            '💰 DGrid Solutions: আজ ৳২১,২৭৪ আয় করেছে',
-            '🔄 job-007 অটো-মাইগ্রেট: node degraded → নতুন node নির্বাচিত',
-            '🛡️ Trust স্কোর আপডেট: prov-002 → 84.1 (DGrid Solutions BD)',
-            '📊 AI Scheduler: ৮৪৭টি job <200ms-এ ম্যাচ করা হয়েছে',
+            '🌿 Carbon saved: 184.2 kg CO₂ saved today',
+            '💰 DGrid Solutions: Earned ৳21,274 today',
+            '🔄 job-007 auto-migrated: node degraded → new node assigned',
+            '🛡️ Trust score updated: prov-002 → 84.1 (DGrid Solutions BD)',
+            '📊 AI Scheduler: 847 jobs matched in < 200ms',
           ]).map((msg, i) => (
             <span key={i} className={styles.tickerItem}>{msg}</span>
           ))}
@@ -207,10 +207,10 @@ export default function HomePage() {
       <section id="features" className={styles.section}>
         <div className="page-container">
           <div className={`${styles.sectionHeader} reveal`}>
-            <span className="tag tag-green">AI-চালিত</span>
-            <h2>শুধু মার্কেটপ্লেস নয়।<br />একটি বুদ্ধিমান কম্পিউট নেটওয়ার্ক।</h2>
-            <p>ছয়টি AI সাবসিস্টেম একসাথে কাজ করে — সেরা GPU অভিজ্ঞতা,
-               সর্বোচ্চ প্রোভাইডার আয়, এবং ন্যূনতম কার্বন ফুটপ্রিন্ট।</p>
+            <span className="tag tag-green">AI-Powered</span>
+            <h2>Not just a marketplace.<br />An intelligent compute network.</h2>
+            <p>Six AI subsystems work together to give consumers the best GPU experience,
+               maximize provider earnings, and minimize carbon footprint.</p>
           </div>
           <div className={`grid-3 reveal`} style={{ marginTop: 48 }}>
             <FeatureCard icon="🧠" accent="#00ff88"
@@ -255,7 +255,7 @@ export default function HomePage() {
               <Step number={1} title="Install Agent" desc="One-command install. The lightweight agent runs on your machine and never touches your files." />
               <Step number={2} title="Verify GPU" desc="Automated benchmark job verifies your GPU specs — builds trust score from day one." />
               <Step number={3} title="Earn Passively" desc="Set your price and go about your day. Jobs run in isolated containers with resource limits." />
-              <Step number={4} title="Get Paid" desc="Weekly payouts via Stripe. Trust score improves with every successful job." isLast />
+              <Step number={4} title="Get Paid" desc="Weekly payouts via bKash, Nagad, or direct bank transfer. Trust score improves with every successful job." isLast />
             </div>
           </div>
         </div>
@@ -271,7 +271,7 @@ export default function HomePage() {
               <p style={{ marginTop: 16 }}>
                 By routing jobs to regions with renewable energy, GreenMesh reduces the carbon
                 footprint of AI training by up to <strong style={{ color: '#00ff88' }}>73%</strong> compared
-                to US-East cloud regions.
+                to standard cloud regions.
               </p>
               <div className={styles.carbonStats}>
                 {[
@@ -293,7 +293,7 @@ export default function HomePage() {
                 { country: '🇬🇧 UK',      intensity: 225, bar: 35,  color: '#f59e0b' },
                 { country: '🇩🇪 Germany', intensity: 350, bar: 54,  color: '#ef4444' },
                 { country: '🇺🇸 US East', intensity: 386, bar: 60,  color: '#ef4444' },
-                { country: '🇮🇳 India',   intensity: 721, bar: 100, color: '#dc2626' },
+                { country: '🇧🇩 BD Grid', intensity: 612, bar: 85,  color: '#dc2626' },
               ].map((r, i) => (
                 <div key={i} className={styles.carbonRow}>
                   <span className={styles.carbonRowCountry}>{r.country}</span>
@@ -315,16 +315,16 @@ export default function HomePage() {
       <section className={styles.section}>
         <div className="page-container">
           <div className={`${styles.sectionHeader} reveal`}>
-            <span className="tag tag-purple">স্বচ্ছ মূল্য</span>
-            <h2>কম্পিউটের জন্য পেমেন্ট, ওভারহেডের জন্য নয়</h2>
-            <p>কোনো রিজার্ভড ইন্সট্যান্স নেই, ন্যূনতম খরচ নেই। সম্পূর্ণ pay-as-you-go সিস্টেম।</p>
+            <span className="tag tag-purple">Transparent Pricing</span>
+            <h2>Pay for compute, not overhead</h2>
+            <p>No reserved instances, no minimum spend. Pure pay-as-you-go with AI-optimized matching.</p>
           </div>
           <div className="grid-4 reveal" style={{ marginTop: 48 }}>
             {[
-              { tier: 'Entry',   icon: '🎮', gpu: 'RTX 3060/3070', price: '৳9–৳33',   vram: '8–12GB',  best: 'ছোট প্রজেক্ট' },
-              { tier: 'Mid',     icon: '💻', gpu: 'RTX 3080/4070',  price: '৳28–৳83',  vram: '10–16GB', best: 'ফাইন-টিউনিং' },
-              { tier: 'High',    icon: '🖥️', gpu: 'RTX 4090/3090',  price: '৳88–৳220', vram: '24GB',    best: 'LLM ট্রেনিং', highlight: true },
-              { tier: 'Ultra',   icon: '⚡', gpu: 'A100 / H100',    price: '৳165–৳715', vram: '40–80GB', best: 'বড় মডেল' },
+              { tier: 'Entry',   icon: '🎮', gpu: 'RTX 3060/3070', price: '৳9–৳33',   vram: '8–12GB',  best: 'Small Experiments' },
+              { tier: 'Mid',     icon: '💻', gpu: 'RTX 3080/4070',  price: '৳28–৳83',  vram: '10–16GB', best: 'Model Fine-tuning' },
+              { tier: 'High',    icon: '🖥️', gpu: 'RTX 4090/3090',  price: '৳88–৳220', vram: '24GB',    best: 'LLM Training', highlight: true },
+              { tier: 'Ultra',   icon: '⚡', gpu: 'A100 / H100',    price: '৳165–৳715', vram: '40–80GB', best: 'Large Scale Models' },
             ].map((p, i) => (
               <div key={i} className={`glass-card glass-card-hover ${styles.pricingCard} ${p.highlight ? styles.pricingCardHL : ''}`}>
                 <div className={styles.pricingIcon}>{p.icon}</div>
@@ -332,9 +332,9 @@ export default function HomePage() {
                 <div className={styles.pricingGPU}>{p.gpu}</div>
                 <div className={styles.pricingPrice}>{p.price}<span>/hr</span></div>
                 <div className={styles.pricingVram}>{p.vram} VRAM</div>
-                <div className={styles.pricingBest}>সেরা: {p.best}</div>
+                <div className={styles.pricingBest}>Best for: {p.best}</div>
                 <Link href="/marketplace" className={`btn ${p.highlight ? 'btn-primary' : 'btn-secondary'} btn-sm`} style={{ marginTop: 16, width: '100%', justifyContent: 'center' }}>
-                  দেখুন {p.tier}
+                  Browse {p.tier}
                 </Link>
               </div>
             ))}
@@ -347,15 +347,15 @@ export default function HomePage() {
         <div className="page-container">
           <div className={`${styles.ctaCard} glass-card reveal`}>
             <div className={styles.ctaOrb} />
-            <span className="tag tag-green" style={{ marginBottom: 24 }}>🚀 নেটওয়ার্কে যোগ দিন</span>
-            <h2>আজই স্মার্ট কম্পিউটিং শুরু করুন?</h2>
+            <span className="tag tag-green" style={{ marginBottom: 24 }}>🚀 Join the Network</span>
+            <h2>Ready to compute smarter?</h2>
             <p style={{ marginTop: 16, marginBottom: 40, maxWidth: 560 }}>
-              BUET, DU, NSU ও BRAC-এর শত শত শিক্ষার্থী ইতিমধ্যে GreenMesh ব্যবহার করছেন —
-              দ্রুততর, সাশ্রয়ী এবং পরিবেশবান্ধব AI কম্পিউটের জন্য।
+              Join hundreds of students, researchers, and engineers across Bangladesh who use GreenMesh
+              to run AI workloads faster, cheaper, and greener.
             </p>
             <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/marketplace" className="btn btn-primary btn-lg">GPU ব্রাউজ করুন →</Link>
-              <Link href="/onboard/provider" className="btn btn-secondary btn-lg">Provider হিসেবে আয় করুন</Link>
+              <Link href="/marketplace" className="btn btn-primary btn-lg">Browse GPUs →</Link>
+              <Link href="/onboard/provider" className="btn btn-secondary btn-lg">Earn as Provider</Link>
             </div>
           </div>
         </div>
@@ -371,13 +371,13 @@ export default function HomePage() {
                 <span className="gradient-text" style={{ fontSize: '1.1rem', fontWeight: 800 }}>GreenMesh</span>
               </div>
               <p style={{ maxWidth: 260, fontSize: '0.85rem' }}>
-                বাংলাদেশের প্রথম AI-চালিত GPU কম্পিউট মার্কেটপ্লেস। সবুজ, সাশ্রয়ী, স্মার্ট।
+                The first AI-powered distributed GPU compute marketplace in Bangladesh. Greener, cheaper, smarter.
               </p>
             </div>
             {[
-              { heading: 'প্ল্যাটফর্ম', links: ['মার্কেটপ্লেস', 'মূল্য', 'কার্বন রিপোর্ট', 'স্ট্যাটাস'] },
-              { heading: 'প্রোভাইডার', links: ['শুরু করুন', 'Agent Docs', 'Trust Score', 'পেআউট'] },
-              { heading: 'কোম্পানি', links: ['About', 'Blog', 'ক্যারিয়ার', 'যোগাযোগ'] },
+              { heading: 'Platform', links: ['Marketplace', 'Pricing', 'Carbon Report', 'Status'] },
+              { heading: 'Providers', links: ['Get Started', 'Agent Docs', 'Trust Score', 'Payouts'] },
+              { heading: 'Company', links: ['About', 'Blog', 'Careers', 'Contact'] },
             ].map((col, i) => (
               <div key={i}>
                 <div className={styles.footerHeading}>{col.heading}</div>
@@ -388,8 +388,8 @@ export default function HomePage() {
             ))}
           </div>
           <div className={styles.footerBottom}>
-            <span>© ২০২৬ GreenMesh। বাংলাদেশের AI GPU কম্পিউট মার্কেটপ্লেস।</span>
-            <span>AI Hackathon 2026 এর জন্য নির্মিত ⚡</span>
+            <span>© 2026 GreenMesh. AI GPU Compute Marketplace.</span>
+            <span>Built for AI Hackathon 2026 ⚡</span>
           </div>
         </div>
       </footer>
