@@ -1,12 +1,13 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { MOCK_PROVIDERS, MOCK_GPU_NODES, MOCK_JOBS, generateTelemetry } from '@/lib/mockData';
+import { MOCK_PROVIDERS, MOCK_GPU_NODES, MOCK_JOBS, generateTelemetry, getProviderEarnings } from '@/lib/mockData';
 import { computeTrustScore, getTrustLabel, checkNodeHealth, getPriceBand } from '@/lib/aiEngine';
 import type { GPUTelemetry, HealthAlert } from '@/lib/types';
 
 const PROVIDER = MOCK_PROVIDERS[2]; // Oslo HPC — most impressive
 const MY_NODES = MOCK_GPU_NODES.filter(n => n.provider_id === PROVIDER.id);
+const earnings = getProviderEarnings(PROVIDER.id);
 
 function TrustRingLarge({ score }: { score: number }) {
   const size = 120;
