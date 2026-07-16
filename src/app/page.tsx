@@ -1,66 +1,398 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import styles from './page.module.css';
 
-export default function Home() {
+// ---- Animated Counter ----
+function AnimatedCounter({ target, suffix = '', prefix = '' }: { target: number; suffix?: string; prefix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      const duration = 2000;
+      const steps = 60;
+      const increment = target / steps;
+      let current = 0;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) { setCount(target); clearInterval(timer); }
+        else setCount(Math.floor(current));
+      }, duration / steps);
+    });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
+}
+
+// ---- Floating GPU Cards ----
+const GPU_CARDS = [
+  { model: 'NVIDIA H100',     vram: '80GB', price: '৳682/hr',  status: 'idle',   carbon: 26,  flag: '🇳🇴', trust: 96.8 },
+  { model: 'NVIDIA RTX 4090', vram: '24GB', price: '৳190/hr',  status: 'idle',   carbon: 612, flag: '🇧🇩', trust: 78.5 },
+  { model: 'NVIDIA A100',     vram: '40GB', price: '৳374/hr',  status: 'busy',   carbon: 56,  flag: '🇫🇷', trust: 85.4 },
+];
+
+function GPUFloatCard({ node, delay }: { node: typeof GPU_CARDS[0]; delay: number }) {
+  const carbonColor = node.carbon < 100 ? '#00ff88' : node.carbon < 300 ? '#f59e0b' : '#ef4444';
+  const statusColor = node.status === 'idle' ? '#00ff88' : '#f59e0b';
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={styles.floatCard} style={{ animationDelay: `${delay}s` }}>
+      <div className={styles.floatCard__header}>
+        <span className={styles.floatCard__flag}>{node.flag}</span>
+        <span className="badge" style={{
+          background: `${statusColor}18`, color: statusColor,
+          border: `1px solid ${statusColor}40`, fontSize: '0.7rem', padding: '2px 8px',
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: statusColor, display: 'inline-block' }} />
+          {node.status.toUpperCase()}
+        </span>
+      </div>
+      <div className={styles.floatCard__model}>{node.model}</div>
+      <div className={styles.floatCard__vram}>{node.vram} VRAM</div>
+      <div className={styles.floatCard__row}>
+        <span className={styles.floatCard__price}>{node.price}</span>
+        <span style={{ fontSize: '0.7rem', color: carbonColor, fontWeight: 600 }}>
+          🌿 {node.carbon} gCO₂/kWh
+        </span>
+      </div>
+      <div className={styles.floatCard__trust}>
+        <div style={{ flex: 1, height: 3, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
+          <div style={{ width: `${node.trust}%`, height: '100%', background: 'linear-gradient(90deg, #00ff88, #00d4ff)', borderRadius: 2 }} />
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        <span style={{ fontSize: '0.72rem', color: '#8b9ab8', whiteSpace: 'nowrap' }}>Trust {node.trust}</span>
+      </div>
     </div>
+  );
+}
+
+// ---- Feature Card ----
+function FeatureCard({ icon, title, desc, accent }: { icon: string; title: string; desc: string; accent: string }) {
+  return (
+    <div className={`glass-card glass-card-hover ${styles.featureCard}`}>
+      <div className={styles.featureCard__icon} style={{ background: `${accent}18`, border: `1px solid ${accent}30` }}>
+        <span style={{ fontSize: '1.5rem' }}>{icon}</span>
+      </div>
+      <h3 className={styles.featureCard__title}>{title}</h3>
+      <p className={styles.featureCard__desc}>{desc}</p>
+    </div>
+  );
+}
+
+// ---- Step ----
+function Step({ number, title, desc, isLast }: { number: number; title: string; desc: string; isLast?: boolean }) {
+  return (
+    <div className={styles.step}>
+      <div className={styles.step__line}>
+        <div className={styles.step__number}>{number}</div>
+        {!isLast && <div className={styles.step__connector} />}
+      </div>
+      <div className={styles.step__content}>
+        <h4 className={styles.step__title}>{title}</h4>
+        <p className={styles.step__desc}>{desc}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function HomePage() {
+  // Scroll reveal
+  useEffect(() => {
+    const elements = document.querySelectorAll('.reveal');
+    elements.forEach(el => el.classList.add('not-revealed'));
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.remove('not-revealed');
+          e.target.classList.add('revealed');
+          observer.unobserve(e.target);
+        }
+      }),
+      { threshold: 0.05, rootMargin: '0px 0px -50px 0px' }
+    );
+    elements.forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <>
+      {/* ── Navbar ── */}
+      <nav className="navbar">
+        <div className="navbar__logo">
+          <div className="navbar__logo-icon">⚡</div>
+          <span className="gradient-text">GreenMesh</span>
+        </div>
+        <ul className="navbar__links">
+          <li><Link href="/marketplace">Marketplace</Link></li>
+          <li><Link href="#features">Features</Link></li>
+          <li><Link href="#how-it-works">How It Works</Link></li>
+          <li><Link href="/dashboard/provider">Providers</Link></li>
+        </ul>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <Link href="/dashboard/consumer" className="btn btn-secondary btn-sm">Log In</Link>
+          <Link href="/marketplace" className="btn btn-primary btn-sm">Get Started →</Link>
+        </div>
+      </nav>
+
+      {/* ── Hero ── */}
+      <section className={styles.hero}>
+        <div className={`page-container ${styles.heroInner}`}>
+          <div className={styles.heroContent}>
+            <div className={styles.heroBadge}>
+              <span className="pulse-dot" />
+              <span>৳95/hr সর্বনিম্ন · বাংলাদেশি শিক্ষার্থীদের জন্য AI কম্পিউট</span>
+            </div>
+            <h1>
+              বাংলাদেশের প্রথম{' '}
+              <span className="gradient-text">AI GPU</span>{' '}
+              মার্কেটপ্লেস
+            </h1>
+            <p className={styles.heroSubtitle}>
+              BUET, DU, NSU ও BRAC-এর শিক্ষার্থীরা এখন ক্লাউডের চেয়ে ৭০% কম খরচে
+              GPU ভাড়া নিতে পারবেন। AI স্কেজুলার, অটো-মাইগ্রেশন ও কার্বন-অপ্টিমাইজড রাউটিং সহ।
+            </p>
+            <div className={styles.heroActions}>
+              <Link href="/marketplace" className="btn btn-primary btn-lg">
+                🚀 GPU দেখুন
+              </Link>
+              <Link href="/onboard/provider" className="btn btn-secondary btn-lg">
+                💰 Provider হন
+              </Link>
+            </div>
+            <div className={styles.heroStats}>
+              {[
+                { label: 'GPU অনলাইন',      value: <AnimatedCounter target={847} />, color: '#00ff88' },
+                { label: 'সর্বনিম্ন/ঘন্টা', value: <><span>৳</span><AnimatedCounter target={22} /></>, color: '#00d4ff' },
+                { label: 'CO₂ বাঁচানো হয়েছে', value: <><AnimatedCounter target={184} />kg</>, color: '#4ade80' },
+                { label: 'আপটাইম SLA',      value: '99.9%', color: '#a78bfa' },
+              ].map((s, i) => (
+                <div key={i} className={styles.heroStat}>
+                  <span className={styles.heroStatValue} style={{ color: s.color }}>{s.value}</span>
+                  <span className={styles.heroStatLabel}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.heroVisual}>
+            {GPU_CARDS.map((card, i) => (
+              <GPUFloatCard key={i} node={card} delay={i * 0.6} />
+            ))}
+            <div className={styles.heroOrb1} />
+            <div className={styles.heroOrb2} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Live Stats Ticker ── */}
+      <div className={styles.ticker}>
+        <div className={styles.tickerTrack}>
+          {[...Array(3)].flatMap(() => [
+            '⚡ job-a41f: BUET CS Lab → RTX 4090 (Oslo) scheduled · ৳682/hr',
+            '🌿 কার্বন সাশ্রয়: আজ ১৮৪.২ kg CO₂ বাঁচানো হয়েছে',
+            '💰 DGrid Solutions: আজ ৳২১,২৭৪ আয় করেছে',
+            '🔄 job-007 অটো-মাইগ্রেট: node degraded → নতুন node নির্বাচিত',
+            '🛡️ Trust স্কোর আপডেট: prov-002 → 84.1 (DGrid Solutions BD)',
+            '📊 AI Scheduler: ৮৪৭টি job <200ms-এ ম্যাচ করা হয়েছে',
+          ]).map((msg, i) => (
+            <span key={i} className={styles.tickerItem}>{msg}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Features ── */}
+      <section id="features" className={styles.section}>
+        <div className="page-container">
+          <div className={`${styles.sectionHeader} reveal`}>
+            <span className="tag tag-green">AI-চালিত</span>
+            <h2>শুধু মার্কেটপ্লেস নয়।<br />একটি বুদ্ধিমান কম্পিউট নেটওয়ার্ক।</h2>
+            <p>ছয়টি AI সাবসিস্টেম একসাথে কাজ করে — সেরা GPU অভিজ্ঞতা,
+               সর্বোচ্চ প্রোভাইডার আয়, এবং ন্যূনতম কার্বন ফুটপ্রিন্ট।</p>
+          </div>
+          <div className={`grid-3 reveal`} style={{ marginTop: 48 }}>
+            <FeatureCard icon="🧠" accent="#00ff88"
+              title="AI Smart Scheduler"
+              desc="Weighted scoring across price, trust, carbon intensity, latency, and VRAM. Priority modes: Cost, Carbon, Latency, Balanced." />
+            <FeatureCard icon="💚" accent="#4ade80"
+              title="Carbon-Aware Routing"
+              desc="Real-time carbon intensity data from 15 regions. Carbon-optimized mode routes jobs to the greenest available GPU." />
+            <FeatureCard icon="🔄" accent="#00d4ff"
+              title="Auto Job Migration"
+              desc="Periodic checkpoints + distributed migration controller. Provider goes offline? Your job resumes on a new node automatically." />
+            <FeatureCard icon="🏥" accent="#f59e0b"
+              title="GPU Health Engine"
+              desc="Real-time telemetry monitoring. Threshold-based alerts + ML anomaly detection flags degrading hardware before failure." />
+            <FeatureCard icon="🛡️" accent="#7c3aed"
+              title="Fraud Detection"
+              desc="Benchmark-based GPU verification at onboarding. Spec-mismatch detection, disconnect pattern analysis, geo-velocity checks." />
+            <FeatureCard icon="📈" accent="#a78bfa"
+              title="Dynamic Pricing AI"
+              desc="Supply/demand pricing bands per GPU tier. Providers get fair rates; consumers get transparent, competitive pricing." />
+          </div>
+        </div>
+      </section>
+
+      {/* ── How It Works ── */}
+      <section id="how-it-works" className={styles.section} style={{ background: 'rgba(255,255,255,0.01)' }}>
+        <div className="page-container">
+          <div className={`${styles.sectionHeader} reveal`}>
+            <span className="tag tag-cyan">Simple Process</span>
+            <h2>From idle GPU to running job<br />in under 60 seconds</h2>
+          </div>
+          <div className={styles.stepsGrid}>
+            <div className="reveal">
+              <h3 style={{ marginBottom: 32, color: 'var(--color-accent-cyan)' }}>For Consumers</h3>
+              <Step number={1} title="Submit Job" desc="Specify your container image, VRAM requirements, budget, and priority mode (cost / carbon / latency)." />
+              <Step number={2} title="AI Schedules" desc="Our weighted-scoring scheduler selects the optimal GPU node from the live pool in milliseconds." />
+              <Step number={3} title="Run & Checkpoint" desc="Your job runs in a secure sandbox. Checkpoints saved periodically so no work is ever lost." />
+              <Step number={4} title="Pay & Download" desc="Pay only for compute used. Results stored in your secure object storage bucket." isLast />
+            </div>
+            <div className="reveal" style={{ transitionDelay: '0.2s' }}>
+              <h3 style={{ marginBottom: 32, color: 'var(--color-accent-green)' }}>For Providers</h3>
+              <Step number={1} title="Install Agent" desc="One-command install. The lightweight agent runs on your machine and never touches your files." />
+              <Step number={2} title="Verify GPU" desc="Automated benchmark job verifies your GPU specs — builds trust score from day one." />
+              <Step number={3} title="Earn Passively" desc="Set your price and go about your day. Jobs run in isolated containers with resource limits." />
+              <Step number={4} title="Get Paid" desc="Weekly payouts via Stripe. Trust score improves with every successful job." isLast />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Carbon Impact ── */}
+      <section className={styles.section}>
+        <div className="page-container">
+          <div className={`glass-card ${styles.carbonSection} reveal`}>
+            <div className={styles.carbonLeft}>
+              <span className="tag tag-green">🌍 Carbon Impact</span>
+              <h2>Compute that cares<br />about the planet</h2>
+              <p style={{ marginTop: 16 }}>
+                By routing jobs to regions with renewable energy, GreenMesh reduces the carbon
+                footprint of AI training by up to <strong style={{ color: '#00ff88' }}>73%</strong> compared
+                to US-East cloud regions.
+              </p>
+              <div className={styles.carbonStats}>
+                {[
+                  { label: 'CO₂ Saved This Month', value: <><AnimatedCounter target={5240} />kg</> },
+                  { label: 'Equivalent Trees Planted', value: <AnimatedCounter target={262} /> },
+                  { label: 'Jobs Carbon-Optimized', value: <><AnimatedCounter target={68} />%</> },
+                ].map((s, i) => (
+                  <div key={i} className={styles.carbonStat}>
+                    <span className={styles.carbonStatValue}>{s.value}</span>
+                    <span className={styles.carbonStatLabel}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className={styles.carbonRight}>
+              {[
+                { country: '🇳🇴 Norway',  intensity: 26,  bar: 5,   color: '#00ff88' },
+                { country: '🇫🇷 France',  intensity: 56,  bar: 9,   color: '#22c55e' },
+                { country: '🇬🇧 UK',      intensity: 225, bar: 35,  color: '#f59e0b' },
+                { country: '🇩🇪 Germany', intensity: 350, bar: 54,  color: '#ef4444' },
+                { country: '🇺🇸 US East', intensity: 386, bar: 60,  color: '#ef4444' },
+                { country: '🇮🇳 India',   intensity: 721, bar: 100, color: '#dc2626' },
+              ].map((r, i) => (
+                <div key={i} className={styles.carbonRow}>
+                  <span className={styles.carbonRowCountry}>{r.country}</span>
+                  <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.06)', borderRadius: 3 }}>
+                    <div style={{ width: `${r.bar}%`, height: '100%', background: r.color, borderRadius: 3, transition: 'width 1.5s ease' }} />
+                  </div>
+                  <span className={styles.carbonRowValue} style={{ color: r.color }}>{r.intensity} gCO₂</span>
+                </div>
+              ))}
+              <p style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: 16 }}>
+                Grid carbon intensity per region (gCO₂/kWh)
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section className={styles.section}>
+        <div className="page-container">
+          <div className={`${styles.sectionHeader} reveal`}>
+            <span className="tag tag-purple">স্বচ্ছ মূল্য</span>
+            <h2>কম্পিউটের জন্য পেমেন্ট, ওভারহেডের জন্য নয়</h2>
+            <p>কোনো রিজার্ভড ইন্সট্যান্স নেই, ন্যূনতম খরচ নেই। সম্পূর্ণ pay-as-you-go সিস্টেম।</p>
+          </div>
+          <div className="grid-4 reveal" style={{ marginTop: 48 }}>
+            {[
+              { tier: 'Entry',   icon: '🎮', gpu: 'RTX 3060/3070', price: '৳9–৳33',   vram: '8–12GB',  best: 'ছোট প্রজেক্ট' },
+              { tier: 'Mid',     icon: '💻', gpu: 'RTX 3080/4070',  price: '৳28–৳83',  vram: '10–16GB', best: 'ফাইন-টিউনিং' },
+              { tier: 'High',    icon: '🖥️', gpu: 'RTX 4090/3090',  price: '৳88–৳220', vram: '24GB',    best: 'LLM ট্রেনিং', highlight: true },
+              { tier: 'Ultra',   icon: '⚡', gpu: 'A100 / H100',    price: '৳165–৳715', vram: '40–80GB', best: 'বড় মডেল' },
+            ].map((p, i) => (
+              <div key={i} className={`glass-card glass-card-hover ${styles.pricingCard} ${p.highlight ? styles.pricingCardHL : ''}`}>
+                <div className={styles.pricingIcon}>{p.icon}</div>
+                <div className={styles.pricingTier}>{p.tier}</div>
+                <div className={styles.pricingGPU}>{p.gpu}</div>
+                <div className={styles.pricingPrice}>{p.price}<span>/hr</span></div>
+                <div className={styles.pricingVram}>{p.vram} VRAM</div>
+                <div className={styles.pricingBest}>সেরা: {p.best}</div>
+                <Link href="/marketplace" className={`btn ${p.highlight ? 'btn-primary' : 'btn-secondary'} btn-sm`} style={{ marginTop: 16, width: '100%', justifyContent: 'center' }}>
+                  দেখুন {p.tier}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className={styles.ctaSection}>
+        <div className="page-container">
+          <div className={`${styles.ctaCard} glass-card reveal`}>
+            <div className={styles.ctaOrb} />
+            <span className="tag tag-green" style={{ marginBottom: 24 }}>🚀 নেটওয়ার্কে যোগ দিন</span>
+            <h2>আজই স্মার্ট কম্পিউটিং শুরু করুন?</h2>
+            <p style={{ marginTop: 16, marginBottom: 40, maxWidth: 560 }}>
+              BUET, DU, NSU ও BRAC-এর শত শত শিক্ষার্থী ইতিমধ্যে GreenMesh ব্যবহার করছেন —
+              দ্রুততর, সাশ্রয়ী এবং পরিবেশবান্ধব AI কম্পিউটের জন্য।
+            </p>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href="/marketplace" className="btn btn-primary btn-lg">GPU ব্রাউজ করুন →</Link>
+              <Link href="/onboard/provider" className="btn btn-secondary btn-lg">Provider হিসেবে আয় করুন</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className={styles.footer}>
+        <div className="page-container">
+          <div className={styles.footerTop}>
+            <div>
+              <div className="navbar__logo" style={{ marginBottom: 12 }}>
+                <div className="navbar__logo-icon">⚡</div>
+                <span className="gradient-text" style={{ fontSize: '1.1rem', fontWeight: 800 }}>GreenMesh</span>
+              </div>
+              <p style={{ maxWidth: 260, fontSize: '0.85rem' }}>
+                বাংলাদেশের প্রথম AI-চালিত GPU কম্পিউট মার্কেটপ্লেস। সবুজ, সাশ্রয়ী, স্মার্ট।
+              </p>
+            </div>
+            {[
+              { heading: 'প্ল্যাটফর্ম', links: ['মার্কেটপ্লেস', 'মূল্য', 'কার্বন রিপোর্ট', 'স্ট্যাটাস'] },
+              { heading: 'প্রোভাইডার', links: ['শুরু করুন', 'Agent Docs', 'Trust Score', 'পেআউট'] },
+              { heading: 'কোম্পানি', links: ['About', 'Blog', 'ক্যারিয়ার', 'যোগাযোগ'] },
+            ].map((col, i) => (
+              <div key={i}>
+                <div className={styles.footerHeading}>{col.heading}</div>
+                {col.links.map(l => (
+                  <div key={l} className={styles.footerLink}>{l}</div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className={styles.footerBottom}>
+            <span>© ২০২৬ GreenMesh। বাংলাদেশের AI GPU কম্পিউট মার্কেটপ্লেস।</span>
+            <span>AI Hackathon 2026 এর জন্য নির্মিত ⚡</span>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }
