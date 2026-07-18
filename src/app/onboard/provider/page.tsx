@@ -55,14 +55,20 @@ function BenchmarkAnimation() {
   ];
 
   useEffect(() => {
+    if (pct >= 100) return; // already done, no new interval needed
     const timer = setInterval(() => {
       setPct(p => {
-        if (p >= 100) { clearInterval(timer); return 100; }
-        return p + 2;
+        const next = p + 2;
+        if (next >= 100) {
+          clearInterval(timer);
+          return 100;
+        }
+        return next;
       });
       setPhase(p => Math.min(p + 0.15, phases.length - 1));
     }, 80);
     return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -110,7 +116,7 @@ export default function ProviderOnboardPage() {
     country: 'Norway',
     gpu_model: 'NVIDIA RTX 4090',
     vram_gb: 24,
-    hourly_price: 1.75,
+    hourly_price: 190,
   });
 
   const gpu = GPU_CATALOG.find(g => g.model === form.gpu_model);
@@ -242,9 +248,9 @@ export default function ProviderOnboardPage() {
                   <p style={{ fontSize: '0.85rem', marginBottom: 12 }}>Based on current supply/demand and your GPU tier ({gpu?.tier?.toUpperCase()}):</p>
                   <div className="grid-3" style={{ gap: 10 }}>
                     {[
-                      { label: 'Floor',       value: `$${priceBand.floor}`, color: '#4ade80' },
-                      { label: 'Recommended', value: `$${priceBand.recommended}`, color: '#00d4ff' },
-                      { label: 'Ceiling',     value: `$${priceBand.ceiling}`, color: '#f59e0b' },
+                      { label: 'Floor',       value: `৳${priceBand.floor}`, color: '#4ade80' },
+                      { label: 'Recommended', value: `৳${priceBand.recommended}`, color: '#00d4ff' },
+                      { label: 'Ceiling',     value: `৳${priceBand.ceiling}`, color: '#f59e0b' },
                     ].map(b => (
                       <div key={b.label} style={{ textAlign: 'center', background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 12 }}>
                         <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginBottom: 4 }}>{b.label}</div>
@@ -254,21 +260,21 @@ export default function ProviderOnboardPage() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Your Price ($/hr)</label>
-                  <input className="input" type="number" min={priceBand.floor} max={priceBand.ceiling} step={0.05}
+                  <label className="form-label">Your Price (৳/hr)</label>
+                  <input className="input" type="number" min={priceBand.floor} max={priceBand.ceiling} step={1}
                     value={form.hourly_price} onChange={e => setForm(f => ({ ...f, hourly_price: +e.target.value }))} />
                   <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                    Must be between ${priceBand.floor} and ${priceBand.ceiling}
+                    Must be between ৳{priceBand.floor} and ৳{priceBand.ceiling}
                   </span>
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: '0.85rem' }}>
                     <span>If running 8hrs/day</span>
-                    <span style={{ fontFamily: 'var(--font-mono)', color: '#00ff88', fontWeight: 700 }}>${(form.hourly_price * 8 * 0.88).toFixed(2)}/day</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', color: '#00ff88', fontWeight: 700 }}>৳{(form.hourly_price * 8 * 0.88).toFixed(0)}/day</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                     <span>Monthly estimate</span>
-                    <span style={{ fontFamily: 'var(--font-mono)', color: '#00ff88', fontWeight: 700 }}>${(form.hourly_price * 8 * 30 * 0.88).toFixed(0)}/month</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', color: '#00ff88', fontWeight: 700 }}>৳{(form.hourly_price * 8 * 30 * 0.88).toFixed(0)}/month</span>
                   </div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', marginTop: 8 }}>After 12% platform fee</div>
                 </div>
@@ -288,7 +294,7 @@ export default function ProviderOnboardPage() {
                   {[
                     { label: 'Trust Score',  value: '70.0', color: '#00d4ff' },
                     { label: 'GPU Model',    value: form.gpu_model.split(' ').slice(-1)[0], color: '#00ff88' },
-                    { label: 'Your Price',   value: `$${form.hourly_price}/hr`, color: '#a78bfa' },
+                    { label: 'Your Price',   value: `৳${form.hourly_price}/hr`, color: '#a78bfa' },
                   ].map(s => (
                     <div key={s.label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 10, padding: 16 }}>
                       <div style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</div>

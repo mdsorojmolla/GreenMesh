@@ -107,10 +107,16 @@ function NodeCard({ node, onSelect }: { node: GPUNode; onSelect: (n: GPUNode) =>
       </div>
 
       {node.status === 'idle' && (
-        <button className="btn btn-primary btn-sm" style={{ width: '100%', justifyContent: 'center' }}
-          onClick={(e) => { e.stopPropagation(); onSelect(node); }}>
-          🚀 Launch Job
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-primary btn-sm" style={{ flex: 1, justifyContent: 'center' }}
+            onClick={(e) => { e.stopPropagation(); onSelect(node); }}>
+            🚀 Launch Job
+          </button>
+          <a href="/vgpu" className="btn btn-secondary btn-sm" style={{ justifyContent: 'center', padding: '8px 12px' }}
+            title="Open vGPU Terminal">
+            💻
+          </a>
+        </div>
       )}
     </div>
   );
@@ -225,7 +231,7 @@ function SchedulerModal({ node, onClose }: { node: GPUNode; onClose: () => void 
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [minVram, setMinVram] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(10);
+  const [maxPrice, setMaxPrice] = useState(1000);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [sortBy, setSortBy] = useState('price');
   const [priorityMode, setPriorityMode] = useState<PriorityMode>('standard');
@@ -236,7 +242,10 @@ export default function MarketplacePage() {
     runScheduler(MOCK_GPU_NODES, { requested_vram_gb: minVram || 0 }, MOCK_PROVIDERS, priorityMode),
     [minVram, priorityMode]
   );
-  const scoreMap = new Map(scores.map(s => [s.node_id, s]));
+  const scoreMap = useMemo(
+    () => new Map(scores.map(s => [s.node_id, s])),
+    [scores]
+  );
 
   const filtered = useMemo(() => {
     return MOCK_GPU_NODES
@@ -284,7 +293,7 @@ export default function MarketplacePage() {
         </Link>
         <ul className="navbar__links">
           <li><Link href="/marketplace" style={{ color: 'var(--color-accent-green)' }}>Marketplace</Link></li>
-          <li><Link href="/jobs">My Jobs</Link></li>
+          <li><Link href="/dashboard/consumer">My Jobs</Link></li>
           <li><Link href="/dashboard/consumer">Dashboard</Link></li>
         </ul>
         <div style={{ display: 'flex', gap: 12 }}>
@@ -335,9 +344,9 @@ export default function MarketplacePage() {
               </select>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>Max $/hr</span>
-              <select className="select" style={{ width: 100 }} value={maxPrice} onChange={e => setMaxPrice(+e.target.value)}>
-                {[0.5,1,2,3,5,7,10].map(v => <option key={v} value={v}>${v}</option>)}
+              <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', whiteSpace: 'nowrap' }}>Max ৳/hr</span>
+              <select className="select" style={{ width: 120 }} value={maxPrice} onChange={e => setMaxPrice(+e.target.value)}>
+                {[50, 100, 200, 300, 500, 750, 1000].map(v => <option key={v} value={v}>৳{v}</option>)}
               </select>
             </div>
             <select className="select" style={{ width: 130 }} value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>

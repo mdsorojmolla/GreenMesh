@@ -1,8 +1,10 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { MOCK_FRAUD_ALERTS, MOCK_GPU_NODES, MOCK_PROVIDERS, MOCK_JOBS, MOCK_PLATFORM_STATS } from '@/lib/mockData';
 import { getTrustLabel } from '@/lib/aiEngine';
+import { getSession, clearSession } from '@/lib/auth';
 import type { FraudAlert } from '@/lib/types';
 
 function SeverityBadge({ severity }: { severity: string }) {
@@ -81,15 +83,45 @@ function AlertCard({ alert, onResolve }: { alert: FraudAlert; onResolve: (id: st
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'fraud' | 'nodes' | 'jobs'>('overview');
   const [alerts, setAlerts] = useState(MOCK_FRAUD_ALERTS);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [session, setSession] = useState<ReturnType<typeof getSession>>(null);
+
+  // Auth guard
+  useEffect(() => {
+    const s = getSession();
+    if (!s || s.role !== 'admin') {
+      router.replace('/login');
+      return;
+    }
+    setSession(s);
+    setAuthChecked(true);
+  }, [router]);
+
+  function handleLogout() {
+    clearSession();
+    router.push('/login');
+  }
 
   function resolveAlert(id: string) {
     setAlerts(prev => prev.map(a => a.id === id ? { ...a, resolved: true } : a));
   }
 
-  const openAlerts  = alerts.filter(a => !a.resolved);
+  const openAlerts   = alerts.filter(a => !a.resolved);
   const highSeverity = openAlerts.filter(a => a.severity === 'high').length;
+
+  if (!authChecked) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2rem', marginBottom: 12 }}>🔐</div>
+          <p>Verifying credentials...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-layout">
@@ -118,19 +150,26 @@ export default function AdminDashboard() {
         <Link href="/dashboard/consumer" className="sidebar__item">👤 Consumer</Link>
         <Link href="/dashboard/provider"  className="sidebar__item">🏗️ Provider</Link>
         <Link href="/marketplace"         className="sidebar__item">🖥️ Marketplace</Link>
+        <Link href="/vgpu"                className="sidebar__item">💻 vGPU Terminal</Link>
       </aside>
 
       <main className="main-content">
         <nav className="navbar" style={{ left: 0, position: 'sticky', top: 0, zIndex: 50 }}>
-          <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>🛡️ Admin Dashboard</h2>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            {highSeverity > 0 && (
-              <span style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', padding: '4px 12px', borderRadius: 999, fontSize: '0.78rem', fontWeight: 700 }}>
-                🚨 {highSeverity} HIGH severity alert{highSeverity > 1 ? 's' : ''}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: '1rem', fontWeight: 700 }}>🛡️ Admin Dashboard</h2>
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                Logged in as <strong style={{ color: '#f87171' }}>{session?.email}</strong>
               </span>
-            )}
-          </div>
-        </nav>
+            </div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              {highSeverity > 0 && (
+                <span style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', padding: '4px 12px', borderRadius: 999, fontSize: '0.78rem', fontWeight: 700 }}>
+                  🚨 {highSeverity} HIGH severity alert{highSeverity > 1 ? 's' : ''}
+                </span>
+              )}
+              <button onClick={handleLogout} className="btn btn-danger btn-sm">⏻ Logout</button>
+            </div>
+          </nav>
 
         {activeTab === 'overview' && (
           <>
@@ -142,7 +181,7 @@ export default function AdminDashboard() {
               {[
                 { label: 'Nodes Online',    value: MOCK_PLATFORM_STATS.total_nodes_online,   color: '#00ff88', icon: '🖥️' },
                 { label: 'Jobs Running',    value: MOCK_PLATFORM_STATS.total_jobs_running,   color: '#00d4ff', icon: '🚀' },
-                { label: 'Revenue Today',   value: `$${MOCK_PLATFORM_STATS.platform_revenue_today.toLocaleString()}`, color: '#a78bfa', icon: '💰' },
+                { label: 'Revenue Today',   value: `৳${MOCK_PLATFORM_STATS.platform_revenue_today.toLocaleString()}`, color: '#a78bfa', icon: '💰' },
                 { label: 'Open Alerts',     value: openAlerts.length, color: highSeverity > 0 ? '#f87171' : '#4ade80', icon: '🚨' },
               ].map(s => (
                 <div key={s.label} className="glass-card stat-card">
@@ -304,7 +343,7 @@ export default function AdminDashboard() {
                           ) : '—'}
                         </td>
                         <td style={{ fontFamily: 'var(--font-mono)', color: '#00ff88', fontWeight: 700 }}>
-                          ${(j.actual_cost ?? j.estimated_cost ?? 0).toFixed(2)}
+                          ৳{(j.actual_cost ?? j.estimated_cost ?? 0).toFixed(2)}
                         </td>
                       </tr>
                     );

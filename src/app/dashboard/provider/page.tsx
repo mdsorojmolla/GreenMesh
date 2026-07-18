@@ -1,8 +1,10 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { MOCK_PROVIDERS, MOCK_GPU_NODES, MOCK_JOBS, generateTelemetry, getProviderEarnings } from '@/lib/mockData';
 import { computeTrustScore, getTrustLabel, checkNodeHealth, getPriceBand } from '@/lib/aiEngine';
+import { getSession, clearSession } from '@/lib/auth';
 import type { GPUTelemetry, HealthAlert } from '@/lib/types';
 
 const PROVIDER = MOCK_PROVIDERS[2]; // Oslo HPC — most impressive
@@ -36,10 +38,12 @@ function MiniChart({ data, color, label }: { data: number[]; color: string; labe
   const min = Math.min(...data, 0);
   const h = 50, w = 200;
   const pts = data.map((v, i) => {
-    const x = (i / (data.length - 1)) * w;
+    const x = (i / Math.max(data.length - 1, 1)) * w;
     const y = h - ((v - min) / (max - min + 0.001)) * h;
     return `${x},${y}`;
   }).join(' ');
+  // Build a closed polygon for the fill: top line + bottom-right + bottom-left
+  const fillPts = `${pts} ${w},${h} 0,${h}`;
 
   return (
     <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 8, padding: 12 }}>
@@ -47,8 +51,8 @@ function MiniChart({ data, color, label }: { data: number[]; color: string; labe
         {label}
       </div>
       <svg width={w} height={h} style={{ overflow: 'visible', display: 'block' }}>
+        <polygon points={fillPts} fill={`${color}15`} stroke="none" />
         <polyline points={pts} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points={`0,${h} ${pts} ${w},${h}`} fill={`${color}15`} strokeWidth="0" />
       </svg>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--color-text-muted)', marginTop: 4 }}>
         <span>60s ago</span>
@@ -133,7 +137,13 @@ function NodeMonitorCard({ nodeId, nodeModel }: { nodeId: string; nodeModel: str
 }
 
 export default function ProviderDashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'overview' | 'nodes' | 'earnings' | 'trust'>('overview');
+
+  function handleLogout() {
+    clearSession();
+    router.push('/login');
+  }
 
   const { color: trustColor, label: trustLabel } = getTrustLabel(PROVIDER.trust_score);
 
@@ -178,6 +188,7 @@ export default function ProviderDashboard() {
         <Link href="/dashboard/consumer" className="sidebar__item">👤 Consumer View</Link>
         <Link href="/dashboard/admin"    className="sidebar__item">🛡️ Admin Panel</Link>
         <Link href="/marketplace"        className="sidebar__item">🖥️ Marketplace</Link>
+        <Link href="/vgpu"               className="sidebar__item">💻 vGPU Terminal</Link>
       </aside>
 
       <main className="main-content">
@@ -189,6 +200,7 @@ export default function ProviderDashboard() {
               <span className="pulse-dot" />
               {MY_NODES.filter(n => n.status !== 'offline').length} nodes online
             </span>
+            <button onClick={handleLogout} className="btn btn-secondary btn-sm">⏻ Logout</button>
           </div>
         </nav>
 
@@ -236,9 +248,9 @@ export default function ProviderDashboard() {
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>Recommended price band</div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.2rem', fontWeight: 800, color: '#00ff88' }}>
-                    ${priceBand.floor}–${priceBand.ceiling}/hr
+                    ৳{priceBand.floor}–৳{priceBand.ceiling}/hr
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: '#00d4ff' }}>Suggested: ${priceBand.recommended}/hr</div>
+                  <div style={{ fontSize: '0.72rem', color: '#00d4ff' }}>Suggested: ৳{priceBand.recommended}/hr</div>
                 </div>
               </div>
             </div>
@@ -319,7 +331,7 @@ export default function ProviderDashboard() {
                       <td>{j.consumer_id.slice(-8)}</td>
                       <td>{j.runtime_minutes ? `${j.runtime_minutes}min` : 'ongoing'}</td>
                       <td style={{ color: '#00ff88', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                        ${((j.actual_cost ?? j.estimated_cost ?? 0) * 0.88).toFixed(2)}
+                        ৳{((j.actual_cost ?? j.estimated_cost ?? 0) * 0.88).toFixed(2)}
                       </td>
                       <td><span className={`badge badge-${j.status === 'completed' ? 'completed' : j.status === 'running' ? 'running' : 'queued'}`}>{j.status}</span></td>
                     </tr>

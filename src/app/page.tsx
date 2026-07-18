@@ -31,9 +31,9 @@ function AnimatedCounter({ target, suffix = '', prefix = '' }: { target: number;
 
 // ---- Floating GPU Cards ----
 const GPU_CARDS = [
-  { model: 'NVIDIA H100',     vram: '80GB', price: '৳682/hr',  status: 'idle',   carbon: 26,  flag: '🇳🇴', trust: 96.8 },
-  { model: 'NVIDIA RTX 4090', vram: '24GB', price: '৳190/hr',  status: 'idle',   carbon: 612, flag: '🇧🇩', trust: 78.5 },
-  { model: 'NVIDIA A100',     vram: '40GB', price: '৳374/hr',  status: 'busy',   carbon: 56,  flag: '🇫🇷', trust: 85.4 },
+  { model: 'NVIDIA H100', vram: '80GB', price: '৳682/hr', status: 'idle', carbon: 26, flag: '🇳🇴', trust: 96.8 },
+  { model: 'NVIDIA RTX 4090', vram: '24GB', price: '৳190/hr', status: 'idle', carbon: 612, flag: '🇧🇩', trust: 78.5 },
+  { model: 'NVIDIA A900', vram: '40GB', price: '৳374/hr', status: 'busy', carbon: 56, flag: '🇫🇷', trust: 85.4 },
 ];
 
 function GPUFloatCard({ node, delay }: { node: typeof GPU_CARDS[0]; delay: number }) {
@@ -127,13 +127,14 @@ export default function HomePage() {
         </div>
         <ul className="navbar__links">
           <li><Link href="/marketplace">Marketplace</Link></li>
+          <li><Link href="/guidelines">Guidelines</Link></li>
           <li><Link href="#features">Features</Link></li>
           <li><Link href="#how-it-works">How It Works</Link></li>
-          <li><Link href="/dashboard/provider">Providers</Link></li>
+          <li><Link href="/vgpu">vGPU Terminal</Link></li>
         </ul>
         <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/dashboard/consumer" className="btn btn-secondary btn-sm">Log In</Link>
-          <Link href="/marketplace" className="btn btn-primary btn-sm">Get Started →</Link>
+          <Link href="/login" className="btn btn-secondary btn-sm">Log In</Link>
+          <Link href="/onboard/provider" className="btn btn-primary btn-sm">Get Started →</Link>
         </div>
       </nav>
 
@@ -164,10 +165,10 @@ export default function HomePage() {
             </div>
             <div className={styles.heroStats}>
               {[
-                { label: 'GPUs Online',     value: <AnimatedCounter target={847} />, color: '#00ff88' },
+                { label: 'GPUs Online', value: <AnimatedCounter target={847} />, color: '#00ff88' },
                 { label: 'Min Rate / Hour', value: <><span>৳</span><AnimatedCounter target={22} /></>, color: '#00d4ff' },
                 { label: 'CO₂ Saved Today', value: <><AnimatedCounter target={184} />kg</>, color: '#4ade80' },
-                { label: 'Uptime SLA',      value: '99.9%', color: '#a78bfa' },
+                { label: 'Uptime SLA', value: '99.9%', color: '#a78bfa' },
               ].map((s, i) => (
                 <div key={i} className={styles.heroStat}>
                   <span className={styles.heroStatValue} style={{ color: s.color }}>{s.value}</span>
@@ -210,7 +211,7 @@ export default function HomePage() {
             <span className="tag tag-green">AI-Powered</span>
             <h2>Not just a marketplace.<br />An intelligent compute network.</h2>
             <p>Six AI subsystems work together to give consumers the best GPU experience,
-               maximize provider earnings, and minimize carbon footprint.</p>
+              maximize provider earnings, and minimize carbon footprint.</p>
           </div>
           <div className={`grid-3 reveal`} style={{ marginTop: 48 }}>
             <FeatureCard icon="🧠" accent="#00ff88"
@@ -288,12 +289,12 @@ export default function HomePage() {
             </div>
             <div className={styles.carbonRight}>
               {[
-                { country: '🇳🇴 Norway',  intensity: 26,  bar: 5,   color: '#00ff88' },
-                { country: '🇫🇷 France',  intensity: 56,  bar: 9,   color: '#22c55e' },
-                { country: '🇬🇧 UK',      intensity: 225, bar: 35,  color: '#f59e0b' },
-                { country: '🇩🇪 Germany', intensity: 350, bar: 54,  color: '#ef4444' },
-                { country: '🇺🇸 US East', intensity: 386, bar: 60,  color: '#ef4444' },
-                { country: '🇧🇩 BD Grid', intensity: 612, bar: 85,  color: '#dc2626' },
+                { country: '🇳🇴 Norway', intensity: 26, bar: 5, color: '#00ff88' },
+                { country: '🇫🇷 France', intensity: 56, bar: 9, color: '#22c55e' },
+                { country: '🇬🇧 UK', intensity: 225, bar: 35, color: '#f59e0b' },
+                { country: '🇩🇪 Germany', intensity: 350, bar: 54, color: '#ef4444' },
+                { country: '🇺🇸 US East', intensity: 386, bar: 60, color: '#ef4444' },
+                { country: '🇧🇩 BD Grid', intensity: 612, bar: 85, color: '#dc2626' },
               ].map((r, i) => (
                 <div key={i} className={styles.carbonRow}>
                   <span className={styles.carbonRowCountry}>{r.country}</span>
@@ -321,10 +322,10 @@ export default function HomePage() {
           </div>
           <div className="grid-4 reveal" style={{ marginTop: 48 }}>
             {[
-              { tier: 'Entry',   icon: '🎮', gpu: 'RTX 3060/3070', price: '৳9–৳33',   vram: '8–12GB',  best: 'Small Experiments' },
-              { tier: 'Mid',     icon: '💻', gpu: 'RTX 3080/4070',  price: '৳28–৳83',  vram: '10–16GB', best: 'Model Fine-tuning' },
-              { tier: 'High',    icon: '🖥️', gpu: 'RTX 4090/3090',  price: '৳88–৳220', vram: '24GB',    best: 'LLM Training', highlight: true },
-              { tier: 'Ultra',   icon: '⚡', gpu: 'A100 / H100',    price: '৳165–৳715', vram: '40–80GB', best: 'Large Scale Models' },
+              { tier: 'Entry', icon: '🎮', gpu: 'RTX 3060/3070', price: '৳9–৳33', vram: '8–12GB', best: 'Small Experiments' },
+              { tier: 'Mid', icon: '💻', gpu: 'RTX 3080/4070', price: '৳28–৳83', vram: '10–16GB', best: 'Model Fine-tuning' },
+              { tier: 'High', icon: '🖥️', gpu: 'RTX 4090/3090', price: '৳88–৳220', vram: '24GB', best: 'LLM Training', highlight: true },
+              { tier: 'Ultra', icon: '⚡', gpu: 'A100 / H100', price: '৳165–৳715', vram: '40–80GB', best: 'Large Scale Models' },
             ].map((p, i) => (
               <div key={i} className={`glass-card glass-card-hover ${styles.pricingCard} ${p.highlight ? styles.pricingCardHL : ''}`}>
                 <div className={styles.pricingIcon}>{p.icon}</div>

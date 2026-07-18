@@ -1,8 +1,10 @@
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MOCK_JOBS, MOCK_GPU_NODES, MOCK_PROVIDERS, MOCK_JOB_EVENTS, MOCK_PLATFORM_STATS } from '@/lib/mockData';
+import { useRouter } from 'next/navigation';
+import { MOCK_JOBS, MOCK_GPU_NODES, MOCK_JOB_EVENTS, MOCK_PLATFORM_STATS, MOCK_USERS } from '@/lib/mockData';
 import { getCarbonScore, estimateJobCarbonKg } from '@/lib/aiEngine';
+import { getSession, clearSession } from '@/lib/auth';
 import type { Job, JobStatus } from '@/lib/types';
 
 const STATUS_STAGES: JobStatus[] = ['queued', 'scheduled', 'running', 'completed'];
@@ -164,6 +166,22 @@ function StatCard({ label, value, sub, color, icon }: { label: string; value: st
 }
 
 export default function ConsumerDashboard() {
+  const router = useRouter();
+  // Simulate current logged-in user (first consumer in mock data)
+  const session = typeof window !== 'undefined' ? getSession() : null;
+  const currentUser = session?.role === 'consumer'
+    ? { email: session.email, org_name: session.orgName, displayName: session.displayName }
+    : (MOCK_USERS.find(u => u.role.includes('consumer')) ?? MOCK_USERS[1]);
+  const displayName = (currentUser as { displayName?: string; org_name?: string; email: string }).displayName
+    ?? (currentUser as { org_name?: string }).org_name
+    ?? (currentUser as { email: string }).email.split('@')[0];
+  const orgLabel = (currentUser as { org_name?: string }).org_name ?? (currentUser as { email: string }).email;
+
+  function handleLogout() {
+    clearSession();
+    router.push('/login');
+  }
+
   const [activeTab, setActiveTab] = useState<'overview' | 'jobs' | 'spending' | 'carbon'>('overview');
   const [simProgress, setSimProgress] = useState<Record<string, number>>({});
 
@@ -224,6 +242,8 @@ export default function ConsumerDashboard() {
         <Link href="/marketplace" className="sidebar__item">🖥️ Marketplace</Link>
         <Link href="/dashboard/provider" className="sidebar__item">🏗️ Provider View</Link>
         <Link href="/dashboard/admin" className="sidebar__item">🛡️ Admin Panel</Link>
+        <Link href="/vgpu" className="sidebar__item">💻 vGPU Terminal</Link>
+        <Link href="/guidelines" className="sidebar__item">📖 Guidelines</Link>
       </aside>
 
       {/* Main */}
@@ -236,14 +256,15 @@ export default function ConsumerDashboard() {
               {runningJobs.length} job{runningJobs.length !== 1 ? 's' : ''} running
             </span>
             <Link href="/marketplace" className="btn btn-primary btn-sm">+ New Job</Link>
+            <button onClick={handleLogout} className="btn btn-secondary btn-sm">⏻ Logout</button>
           </div>
         </nav>
 
         {activeTab === 'overview' && (
           <>
             <div className="page-header">
-              <h1>Welcome back, <span className="gradient-text">Alice</span></h1>
-              <p>Stanford AI Lab · Consumer Account</p>
+              <h1>Welcome back, <span className="gradient-text">{displayName}</span></h1>
+              <p>{orgLabel} · Consumer Account</p>
             </div>
 
             {/* Stats */}
